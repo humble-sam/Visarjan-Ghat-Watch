@@ -50,15 +50,20 @@ Hosting: `npm run build` produces a static `dist/` including the PDFs. For a sub
 
 ## Team
 
-Team name: to be filled before submission.
+**Team_Nova**
 
-| Member | Name | Ownership |
-|---|---|---|
-| 1 | To be assigned | Bootstrap, shared contracts, integration, deployment |
-| 2 | To be assigned | CSV ingestion, criteria, provenance, data checks |
-| 3 | To be assigned | Risk ranking, comparisons, coverage, tests |
-| 4 | To be assigned | Officer dashboard, ghat details, charts |
-| 5 | To be assigned | Hindi/English brief, PDF spot-checks, demo |
+| Name | Institution |
+|---|---|
+| Samraddha Niranjan | IIIT Bhopal |
+| Shivendra Tiwari | IIIT Bhopal |
+| Shaurya Kumar | LNCT |
+| Prashant Patel | LNCT |
+| Shanu Kushwaha | LNCT |
+
+Work was split into five areas: bootstrap, shared contracts, integration and
+deployment; CSV ingestion, criteria and provenance; risk ranking, comparisons and
+coverage; officer dashboard, ghat details and charts; and the Hindi/English brief,
+PDF spot-checks and demo.
 
 ## Sources And Limits
 
