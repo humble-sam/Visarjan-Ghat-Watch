@@ -1,6 +1,9 @@
 # Visarjan Ghat Watch
 
-Track 2, Bhopal Impact Lab 2026. A five-person, four-hour build.
+**Team_Nova** · Track 2: Visarjan Ghat Watch · Bhopal Impact Lab 2026
+
+Members: Samraddha Niranjan (IIIT Bhopal), Shivendra Tiwari (IIIT Bhopal),
+Shaurya Kumar (LNCT), Prashant Patel (OCT), Shanu Kushwaha (LNCT).
 
 **User:** the Bhopal Municipal Corporation officer allocating water testing,
 cleaning and aeration attention before Durga visarjan.
@@ -48,6 +51,20 @@ A data load failure shows an error and retry; it never falls back to synthetic d
 Hosting: `npm run build` produces a static `dist/` including the PDFs. For a subpath
 (e.g. GitHub Pages) build with `VITE_BASE_PATH=/Visarjan-Ghat-Watch/`.
 
+## What Does Not Work Yet
+
+- **Assistant not verified against the live Claude API.** It was tested end to end
+  against a local mock of the API only. It needs `ANTHROPIC_API_KEY` on the server; without
+  it the chat shows "not configured" and everything else still works.
+- **Hindi wording** is accepted by the team but not yet signed off by a fluent reviewer.
+- **No PDF extraction.** The app relies on the supplied structured CSVs. Only a few
+  readings were checked against the original PDF pages ([evidence QA](docs/QA_CHECKLIST.md)).
+- **Reports added through "Add reports"** are stored only in that browser on that device.
+- **No login.** Anyone who can open a deployed copy can use the assistant, billed to the
+  configured key.
+- **The ranking is a team heuristic over unequal samples**, not an official CPCB ranking,
+  a forecast or current 2026 conditions. Ghats with few readings can rank high.
+
 ## Assistant (Claude)
 
 The "Ask the assistant" button opens a chat that answers questions about the site,
@@ -91,7 +108,8 @@ Data covers 2023-2025, not current 2026 conditions. Missing readings are unknown
 BDL is not zero. Units are assumed by the source pack. Class B is a comparison
 benchmark, not an immersion permit or a complete water-safety assessment.
 
-The planned MVP uses public files only and has no live government-system connection.
+The app uses the bundled public files only and has no live government-system connection.
+The optional assistant sends questions and the officer's current view to the Claude API.
 
 Original problem statement:
 https://github.com/Vishal4742/bhopal-impact-lab-2026-problem-statements/tree/main/track-2-visarjan-ghat-watch
