@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Copy, Download, FileText, Printer } from 'lucide-react';
+import { AlertTriangle, Copy, Download, FileText, Mail, MessageCircle, Printer, Share2 } from 'lucide-react';
 import { SourceLink } from '../../shared/SourceLink';
 import { buildBrief, buildBriefContent } from './buildBrief';
 import { downloadBrief } from './exportBrief';
 import type { BriefPanelProps, Language } from '../../shared/types';
 import './brief.css';
+
+// Conservative cap: several desktop mail clients truncate longer mailto: links.
+const MAILTO_BODY_LIMIT = 1800;
 
 const labels = {
   en: {
@@ -15,6 +18,9 @@ const labels = {
     untraceable: 'Report references need verification. Export is unavailable until the priority reasons are traceable.',
     downloaded: 'Text downloaded.', copied: 'Brief copied.',
     clipboardFailed: 'Clipboard is unavailable. Download the text instead.', failed: 'Export failed. Please try again.',
+    forward: 'Forward', whatsapp: 'WhatsApp', email: 'Email', share: 'Share', shared: 'Brief shared.',
+    forwardCopied: 'Brief also copied. If the message looks cut short, paste it in full.',
+    pasteBrief: 'The officer brief has been copied to your clipboard. Paste it here before sending.',
   },
   hi: {
     heading: 'अधिकारी कार्य-सार', eyebrow: 'अधिकारी के लिए', historical: 'ऐतिहासिक साक्ष्य', preview: 'काल्पनिक पूर्वावलोकन',
@@ -24,6 +30,9 @@ const labels = {
     untraceable: 'रिपोर्ट संदर्भ की पुष्टि जरूरी है। प्राथमिकता के कारणों के स्रोत मिलने तक निर्यात उपलब्ध नहीं है।',
     downloaded: 'टेक्स्ट डाउनलोड हो गया।', copied: 'कार्य-सार कॉपी हो गया।',
     clipboardFailed: 'क्लिपबोर्ड उपलब्ध नहीं है। टेक्स्ट डाउनलोड करें।', failed: 'निर्यात नहीं हो सका। फिर प्रयास करें।',
+    forward: 'आगे भेजें', whatsapp: 'व्हाट्सऐप', email: 'ईमेल', share: 'साझा करें', shared: 'कार्य-सार साझा किया गया।',
+    forwardCopied: 'कार्य-सार कॉपी भी हो गया है। संदेश अधूरा दिखे तो पूरा पेस्ट करें।',
+    pasteBrief: 'अधिकारी कार्य-सार आपके क्लिपबोर्ड में कॉपी हो गया है। भेजने से पहले इसे यहाँ पेस्ट करें।',
   },
 } as const;
 
@@ -51,6 +60,26 @@ export function BriefPanel({ analysis }: BriefPanelProps) {
     catch { setStatus(words.clipboardFailed); }
     finally { setCopying(false); }
   }
+  // Forwarding hands the same UTF-8 brief text (with report/page references) to the officer's own apps.
+  const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  async function handleShare() {
+    if (!canExport) return;
+    try { await navigator.share({ title: brief.title, text: brief.text }); setStatus(words.shared); }
+    catch (error) { if (!(error instanceof DOMException && error.name === 'AbortError')) setStatus(words.failed); }
+  }
+  // Long (especially Devanagari) briefs can exceed what mail apps accept in a link,
+  // so the full text is also copied for the officer to paste if the message is cut.
+  async function openForward(url: string) {
+    if (!canExport) return;
+    let copied = false;
+    try { await navigator.clipboard.writeText(brief.text); copied = true; } catch { /* clipboard is optional here */ }
+    if (!window.open(url, '_blank', 'noopener,noreferrer')) setStatus(words.failed);
+    else setStatus(copied ? words.forwardCopied : null);
+  }
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(brief.text)}`;
+  const fullBody = encodeURIComponent(brief.text);
+  const emailUrl = `mailto:?subject=${encodeURIComponent(brief.title)}&body=${fullBody.length <= MAILTO_BODY_LIMIT ? fullBody : encodeURIComponent(words.pasteBrief)}`;
+
   function handlePrint() {
     if (!canExport) return;
     try { window.print(); }
@@ -72,6 +101,15 @@ export function BriefPanel({ analysis }: BriefPanelProps) {
           </button>
           <button className="icon-button" type="button" disabled={!canExport || copying} title={exportNotice ?? words.copy} aria-label={words.copy} onClick={handleCopy}><Copy size={17} aria-hidden="true" /></button>
           <button className="icon-button" type="button" disabled={!canExport} title={exportNotice ?? words.print} aria-label={words.print} onClick={handlePrint}><Printer size={17} aria-hidden="true" /></button>
+          <span className="forward-group" role="group" aria-label={words.forward}>
+            <span className="forward-label">{words.forward}</span>
+            <button className="command-button forward-whatsapp" type="button" disabled={!canExport} title={exportNotice ?? words.whatsapp}
+              onClick={() => openForward(whatsappUrl)}><MessageCircle size={16} aria-hidden="true" />{words.whatsapp}</button>
+            <button className="command-button" type="button" disabled={!canExport} title={exportNotice ?? words.email}
+              onClick={() => openForward(emailUrl)}><Mail size={16} aria-hidden="true" />{words.email}</button>
+            {canShare && <button className="command-button" type="button" disabled={!canExport} title={exportNotice ?? words.share}
+              onClick={handleShare}><Share2 size={16} aria-hidden="true" />{words.share}</button>}
+          </span>
         </div>
       </div>
       {exportNotice && <p className="brief-export-notice"><AlertTriangle size={16} aria-hidden="true" />{exportNotice}</p>}

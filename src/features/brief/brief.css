@@ -37,3 +37,11 @@
   .brief-content-section h4 { font-size: 9.5pt; line-height: 1.4; break-after: avoid; }
   .brief-content-section p { font-size: 8.5pt; line-height: 1.55; margin-bottom: 6pt; }
 }
+
+/* Forwarding the brief to the officer's own apps */
+.brief-toolbar > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.forward-group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: 10px; padding-left: 14px; border-left: 1px solid var(--line); }
+.forward-label { font-size: 15px; color: var(--muted); }
+.forward-whatsapp:not(:disabled) { border-color: #1f8f4e; color: #17703c; }
+@media (max-width: 600px) { .forward-group { margin-left: 0; padding-left: 0; border-left: 0; } }
+@media print { .forward-group { display: none; } }

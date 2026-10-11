@@ -1,11 +1,13 @@
 import { AlertTriangle, ChevronRight, FlaskConical, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { DEFAULT_FILTERS, formatScope, PHASE_LABELS } from '../../shared/defaults';
-import type { DashboardProps, Filters, SiteAnalysis } from '../../shared/types';
+import { SourceLink } from '../../shared/SourceLink';
+import type { DashboardProps, EvaluatedReading, Filters, SiteAnalysis } from '../../shared/types';
 import { AnalyticsPanel } from './AnalyticsPanel';
 import { GhatDetail } from './GhatDetail';
 import { GhatGallery } from './GhatGallery';
+import { LimitsTable } from './LimitsTable';
 import {
-  AVAILABLE_YEARS, FESTIVALS, hasScope, isIncomplete, PHASES, statusLabel, toggleValue,
+  AVAILABLE_YEARS, FESTIVALS, hasScope, headlineReading, isIncomplete, PHASES, rankSummary, statusLabel, toggleValue,
 } from './model';
 import './dashboard.css';
 
@@ -71,7 +73,7 @@ export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, 
               <thead><tr><th scope="col">Rank</th><th scope="col">Ghat</th><th scope="col">Breaches</th><th scope="col">Coverage</th></tr></thead>
               <tbody>{analysis.sites.map((item) => (
                 <PriorityRow key={item.site.id} item={item} scoped={scoped}
-                  selected={selected?.site.id === item.site.id} onSelect={onSelectSite} />
+                  selected={selected?.site.id === item.site.id} onSelect={onSelectSite} readings={analysis.readings} />
               ))}</tbody>
             </table>
           </div>
@@ -80,6 +82,8 @@ export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, 
         </section>
         {selected && <GhatDetail site={selected} readings={analysis.readings} filters={filters} />}
       </div>
+
+      {scoped && <LimitsTable analysis={analysis} />}
 
       <div className="limitations-band"><AlertTriangle size={17} aria-hidden="true" />
         <div>
@@ -118,10 +122,11 @@ function FilterBar({ filters, onChange, isDefault, years }: { filters: Filters; 
   );
 }
 
-function PriorityRow({ item, scoped, selected, onSelect }: {
-  item: SiteAnalysis; scoped: boolean; selected: boolean; onSelect: (siteId: string) => void;
+function PriorityRow({ item, scoped, selected, onSelect, readings }: {
+  item: SiteAnalysis; scoped: boolean; selected: boolean; onSelect: (siteId: string) => void; readings: EvaluatedReading[];
 }) {
   const status = statusLabel(item, scoped);
+  const cited = headlineReading(item, readings);
   const { coverage } = item;
   const rowClass = [selected && 'selected-row', item.rank === null && 'unranked-row'].filter(Boolean).join(' ');
   return (
@@ -133,7 +138,9 @@ function PriorityRow({ item, scoped, selected, onSelect }: {
           {item.site.confidence === 'medium' && <span className="status-label unknown">Site identity to verify</span>}
         </span>
         <ChevronRight size={16} aria-hidden="true" />
-      </button></td>
+      </button>
+        <p className="rank-reason">{rankSummary(item, scoped)}
+          {cited && <span className="rank-source"> Source: {cited.year} report <SourceLink source={cited.source} /></span>}</p></td>
       <td className="numeric-cell">{item.benchmarkNumericCount
         ? <>{item.benchmarkBreachCount}/{item.benchmarkNumericCount}<small>{Math.round((item.breachFraction ?? 0) * 100)}% of numeric</small></>
         : <>Unknown<small>no numeric</small></>}</td>
