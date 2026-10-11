@@ -77,3 +77,33 @@
   .ghat-gallery { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
   .ghat-card-body { padding: 10px 12px 12px; }
 }
+
+/* ---- Plain-words reason under each ranked ghat ---- */
+.rank-reason { margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: #3d4b4c; }
+.rank-source { color: var(--muted); white-space: nowrap; }
+.rank-source .source-link { font-size: 14px; }
+
+/* ---- Readings against CPCB limits ---- */
+.limits-section { margin: 34px 0 10px; padding: 24px 26px; border: 1px solid var(--line); border-radius: 18px; background: white; }
+.limits-section .subsection-heading { align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.limits-section h3 { font-size: 21px; color: var(--lake); }
+.limits-intro { margin: 6px 0 0; font-size: 15px; color: var(--muted); }
+.limits-table { width: 100%; border-collapse: collapse; min-width: 760px; text-align: left; }
+.limits-table th, .limits-table td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.limits-table thead th { background: var(--surface); font-size: 15px; color: var(--ink); }
+.limits-table thead th small { display: block; font-weight: 400; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.limits-table tbody th { font-size: 16px; font-weight: 600; }
+.limits-table tbody th small { display: block; font-weight: 400; font-size: 14px; color: var(--muted); }
+.limits-rank { font-size: 17px; font-weight: 700; color: var(--lake); width: 56px; }
+.limit-cell small { display: block; font-size: 14px; color: var(--muted); margin-top: 3px; }
+.limit-value { display: inline-flex; align-items: center; gap: 6px; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.limit-cell.breach .limit-value { color: var(--red); }
+.limit-cell.meets .limit-value { color: #256abf; }
+.limit-cell.none .limit-value { color: var(--amber); font-size: 16px; }
+.limit-cell.none { background: repeating-linear-gradient(135deg, transparent 0 6px, #f6f8f8 6px 12px); }
+.limit-source .source-link { font-size: 14px; }
+.limits-notes { margin: 14px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.7; color: var(--muted); }
+@media (max-width: 600px) { .limits-section { padding: 16px; } }
+
+/* Keep scrolled-to sections clear of the sticky navigation */
+#ghat-detail, .limits-section, .analytics { scroll-margin-top: 80px; }

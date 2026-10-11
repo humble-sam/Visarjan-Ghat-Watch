@@ -245,6 +245,44 @@ export function reasonText(reason: Reason): string {
   }
 }
 
+/**
+ * One short plain-words line explaining a ghat's position in the list, built only
+ * from its structured reasons (same facts as "Why this position").
+ */
+export function rankSummary(site: SiteAnalysis, scoped: boolean): string {
+  if (!scoped) return 'Select a period to see why.';
+  const by = new Map(site.reasons.map((reason) => [reason.code, reason]));
+  const parts: string[] = [];
+  const zero = by.get('zero_do');
+  const lowDo = by.get('do_breach');
+  const highBod = by.get('bod_breach');
+  const ph = by.get('ph_breach');
+  if (zero) parts.push(`Oxygen fell to 0 mg/l${zero.count && zero.count > 1 ? ` ${zero.count} times` : ''} (needs at least 5)`);
+  else if (lowDo) parts.push(`Oxygen as low as ${value(lowDo.observed)} mg/l (needs at least ${value(lowDo.limit)}) in ${lowDo.count} of ${lowDo.total} tests`);
+  if (highBod) parts.push(`BOD up to ${value(highBod.observed)} mg/l (limit ${value(highBod.limit)}) in ${highBod.count} of ${highBod.total} tests`);
+  if (ph) parts.push(`pH out of range in ${ph.count} of ${ph.total} tests`);
+  if (by.has('no_observed_breach')) parts.push(`No DO/BOD/pH breach in ${by.get('no_observed_breach')!.total} available tests (not a safety finding)`);
+  const gaps = by.get('incomplete_evidence');
+  if (site.rank === null) parts.push('No numeric DO/BOD/pH reading in this period, so it cannot be ranked. Fresh testing needed');
+  else if (gaps) parts.push(`only ${gaps.count} of ${gaps.total} expected tests have numbers`);
+  if (by.has('site_ambiguity')) parts.push('site name may cover two places');
+  const text = parts.join('; ');
+  return text ? `${text.charAt(0).toUpperCase()}${text.slice(1)}.` : 'No benchmark readings in this period.';
+}
+
+/** The reading to cite first for a ghat: the worst benchmark breach, else the first numeric reading. */
+export function headlineReading(site: SiteAnalysis, readings: EvaluatedReading[]): EvaluatedReading | null {
+  const byId = new Map(readings.map((reading) => [reading.id, reading]));
+  for (const code of ['zero_do', 'do_breach', 'bod_breach', 'ph_breach', 'no_observed_breach'] as const) {
+    const reason = site.reasons.find((item) => item.code === code);
+    if (!reason) continue;
+    const cited = reason.evidenceIds.map((id) => byId.get(id)).filter((row): row is EvaluatedReading => !!row);
+    const exact = cited.find((row) => reason.observed !== null && row.value === reason.observed);
+    if (exact ?? cited[0]) return exact ?? cited[0];
+  }
+  return null;
+}
+
 export function reasonTone(reason: Reason): 'critical' | 'warning' | 'unknown' | 'neutral' {
   if (reason.code === 'zero_do') return 'critical';
   if (reason.code.endsWith('_breach')) return 'warning';
