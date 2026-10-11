@@ -1,6 +1,6 @@
 # Visarjan Ghat Watch
 
-Track 2, Bhopal Impact Lab 2026. A planning pack for a five-person, four-hour build.
+Track 2, Bhopal Impact Lab 2026. A five-person, four-hour build.
 
 **User:** the Bhopal Municipal Corporation officer allocating water testing,
 cleaning and aeration attention before Durga visarjan.
@@ -16,8 +16,31 @@ open the original report page, and export a short Hindi/English action brief.
 4. Use the original files in [public/assets/track-2](public/assets/track-2).
 5. Follow the merge checkpoints and acceptance checklist in the plan.
 
-This repository currently contains the plan and original assets. The application
-has not been implemented yet; run instructions will be added by Member 1.
+## Run Locally
+
+Prerequisite: Node.js 22.12+ (Node 24 recommended).
+
+1. `git clone https://github.com/humble-sam/Visarjan-Ghat-Watch.git`
+2. `cd Visarjan-Ghat-Watch`
+3. `npm ci`
+4. `npm run dev` and open the URL printed in the terminal (normally http://localhost:5173).
+
+`npm run check` runs the TypeScript check, production build and unit tests.
+`npm run build` produces `dist/`; `npm run preview` serves it locally.
+
+## Current Status
+
+Working: app shell, shared TypeScript contracts, filter/selection state, a labelled
+seven-ghat synthetic fixture, starter dashboard/details, English/Hindi draft views,
+source library, original local assets, loading/error/retry states and CI checks.
+
+Pending: real CSV ingestion (Member 2), production ranking (Member 3), full dashboard
+and charts (Member 4), reviewed bilingual briefs/export (Member 5), and hosting.
+Synthetic data is **not** MPPCB evidence; officer exports are disabled in this baseline.
+
+Read [the bootstrap handoff](docs/BOOTSTRAP_HANDOFF.md) before starting feature work.
+`VITE_DATA_MODE=real` activates the agreed data/analysis entry points once implemented.
+Until then real mode fails explicitly; it never substitutes synthetic readings.
 
 ## Team
 
