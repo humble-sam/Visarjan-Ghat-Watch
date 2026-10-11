@@ -48,6 +48,22 @@ A data load failure shows an error and retry; it never falls back to synthetic d
 Hosting: `npm run build` produces a static `dist/` including the PDFs. For a subpath
 (e.g. GitHub Pages) build with `VITE_BASE_PATH=/Visarjan-Ghat-Watch/`.
 
+## Assistant (Claude)
+
+The "Ask the assistant" button opens a chat that answers questions about the site,
+the reports, plans of action and basic water-quality terms, in English or Hindi.
+It runs on Claude (`claude-opus-5-5`) through a server function, `api/chat.ts`, so the
+API key never reaches the browser. Every question is sent with a summary of the
+officer's current view, and the server adds the full readings CSV and the project
+docs as cached context.
+
+- Local: put `ANTHROPIC_API_KEY=...` in `.env.local` (gitignored), then `npm run dev`.
+- Vercel: set `ANTHROPIC_API_KEY` in Project Settings → Environment Variables, then deploy.
+- Without a key the rest of the app works and the chat shows "not configured".
+- Each answer is billed to the key's Anthropic account. Set a spend limit in the
+  Anthropic Console. The endpoint checks the request origin and limits message size,
+  but it has no login.
+
 ## Team
 
 **Team_Nova**
