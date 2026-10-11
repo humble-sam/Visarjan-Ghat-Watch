@@ -19,7 +19,7 @@ export const BHOPAL_SITES: Site[] = [
     name: 'Bairagarh (Sant Hirdaram) kund',
     waterBody: 'Upper Lake',
     confidence: 'high',
-    warnings: ['No Durga 2025 immersion table published in source report.'],
+    warnings: [],
   },
   {
     id: 'khatlapura',
@@ -54,7 +54,7 @@ export const BHOPAL_SITES: Site[] = [
     name: 'Malikhedi kund',
     waterBody: 'Kund',
     confidence: 'high',
-    warnings: ['No Durga 2025 immersion table published in source report.'],
+    warnings: [],
   },
   {
     id: 'shahpura',
@@ -158,12 +158,9 @@ export function normalizeReadingValue(
     return { value: null, status: 'unknown', rawFlag };
   }
 
-  // Value is empty and flag is recognized empty / missing marker
+  // Empty value with no recognised flag: unknown, never a silent missing or pass
   if (trimmedFlag === '') {
-    if (trimmedVap === '' || trimmedVap === 'not sampled') {
-      return { value: null, status: 'not_sampled', rawFlag };
-    }
-    warnings.push(`Row ${rowId} (${parameter}): empty value with unrecognized value_as_printed "${valueAsPrinted}".`);
+    warnings.push(`Row ${rowId} (${parameter}): empty value with no recognised flag (printed "${valueAsPrinted ?? ''}") treated as unknown.`);
     return { value: null, status: 'unknown', rawFlag };
   }
 
@@ -223,10 +220,11 @@ export function parseBhopalReadings(csvText: string): { readings: Reading[]; war
       warnings
     );
 
-    const reportInfo = YEAR_REPORTS[year] ?? {
-      documentId: `immersion-${year}`,
-      file: `visarjan_report_${year}.pdf`,
-    };
+    // No bundled report for other years: leave the link empty rather than invent a file.
+    const reportInfo = YEAR_REPORTS[year];
+    if (!reportInfo) {
+      warnings.push(`Row ${rowId}: no bundled report for year "${row.year}".`);
+    }
 
     const rawPage = (row.source_page ?? '').trim();
     const pageNum = Number.parseInt(rawPage, 10);
@@ -235,8 +233,8 @@ export function parseBhopalReadings(csvText: string): { readings: Reading[]; war
     }
 
     const source: SourceRef = {
-      documentId: reportInfo.documentId,
-      pdfUrl: reportUrl(reportInfo.file),
+      documentId: reportInfo?.documentId ?? `immersion-${year}`,
+      pdfUrl: reportInfo ? reportUrl(reportInfo.file) : '',
       page: Number.isNaN(pageNum) ? 0 : pageNum,
       siteAsPrinted: row.site_as_printed ?? rawSite,
     };
@@ -344,10 +342,8 @@ export function parseTrackData(bhopalCsvText: string, criteriaCsvText: string): 
 
   const datasetWarnings: string[] = [
     `Source pack pinned to commit: ${SOURCE_COMMIT}.`,
-    'Units are assumed by the source pack; original MPPCB reports print no units.',
-    'No Durga 2025 immersion tables published for Bairagarh kund and Malikhedi kund in source reports.',
-    'Site mapping ambiguity: Rani Kamlapati ghat / Kamla Park kund combines Ganesh and Durga records (confidence: medium).',
-    'Class B comparison limitation: Total coliform is absent from immersion reports; bathing compliance is not fully assessed.',
+    'The supplied 2025 Durga section has no tables for Bairagarh kund or Malikhedi kund; those periods are absent, not clean.',
+    'Rani Kamlapati ghat / Kamla Park kund combines differently printed Ganesh and Durga site names (confidence: medium).',
     ...readingWarnings,
     ...criteriaWarnings,
   ];

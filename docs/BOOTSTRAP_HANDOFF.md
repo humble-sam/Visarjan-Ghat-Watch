@@ -1,5 +1,8 @@
 # Bootstrap Handoff
 
+> Historical record of the baseline. The release default is now real data;
+> see the README for current status.
+
 ## Baseline
 
 The app uses one Vite/React/TypeScript project and one npm lockfile. Node 22.12+

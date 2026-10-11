@@ -185,7 +185,7 @@ export function buildBriefContent(analysis: Analysis, language: Language): Brief
   }
   sections.push({ title: words.limits, lines: [...words.limitLines] });
   const notes = [...new Set([...analysis.warnings.filter((warning) => !/synthetic|fixture/i.test(warning)),
-    ...analysis.sites.flatMap((item) => item.warnings)])];
+    ...analysis.sites.flatMap((item) => item.warnings.map((warning) => `${item.site.name}: ${warning}`))])];
   if (notes.length) sections.push({ title: words.notes, lines: notes });
   if (citations.length) sections.push({ title: words.references, lines: citations.map((citation) => {
     const row = citation.reading;

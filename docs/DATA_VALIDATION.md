@@ -6,11 +6,11 @@
 
 ---
 
-## 1. Executive Summary
+## 1. Summary
 
 This document verifies the automated parsing, data cleaning, flag normalization, and provenance tracking for the historical water-quality dataset covering seven idol immersion sites in Bhopal from 2023 to 2025.
 
-All checks specified in the project contract (`docs/CONTRACTS.md`) and Member 2 requirements (`docs/AI_PROMPTS.md`) have been verified programmatically and validated via automated unit and integration tests.
+The counts below are asserted by automated tests against the bundled CSV (`npm test`). They are dataset-wide checks, not values hardcoded into filtered screens.
 
 ### Key Validation Outcomes
 
@@ -52,13 +52,13 @@ Per `docs/CONTRACTS.md`, exactly seven site IDs are mapped deterministically. Ev
 
 | Site ID | Canonical Name | Water Body | Confidence | Notes & Warnings |
 |---|---|---|---|---|
-| `bairagarh` | Bairagarh (Sant Hirdaram) kund | Upper Lake | `high` | No Durga 2025 immersion table published in source report. |
-| `khatlapura` | Khatlapura ghat | Lower Lake | `high` | Continuous 3-year record (Ganesh & Durga). |
-| `prempura` | Prempura ghat | Upper Lake | `high` | Continuous 3-year record (Ganesh & Durga). |
-| `kamla-park` | Rani Kamlapati ghat / Kamla Park kund | Lower Lake | `medium` | **Site Mapping Ambiguity**: Ganesh tables designate "Kamla Park kund", whereas Durga tables designate "Lower Lake ghat". May combine two physical locations. |
-| `hathaikheda` | Hathaikheda dam / kund | Hathaikheda dam | `high` | Continuous 3-year record (Ganesh & Durga). |
-| `malikhedi` | Malikhedi kund | Kund | `high` | No Durga 2025 immersion table published in source report. |
-| `shahpura` | Shahpura lake ghat | Shahpura Lake | `high` | Continuous 3-year record (Ganesh & Durga). |
+| `bairagarh` | Bairagarh (Sant Hirdaram) kund | Upper Lake | `high` | No table in the supplied 2025 Durga section; analysis reports the gap when that period is selected. |
+| `khatlapura` | Khatlapura ghat | Lower Lake | `high` | Tables present for all six year/festival periods. |
+| `prempura` | Prempura ghat | Upper Lake | `high` | Tables present for all six year/festival periods. |
+| `kamla-park` | Rani Kamlapati ghat / Kamla Park kund | Lower Lake | `medium` | **Site mapping ambiguity**: Ganesh tables print "Rani Kamlapati, Kamla Park, Murti Visarjan Kund"; Durga tables print "Rani Kamlapati Visarjan Ghat (Lower Lake)". May combine two physical locations. |
+| `hathaikheda` | Hathaikheda dam / kund | Hathaikheda dam | `high` | Tables present for all six year/festival periods. |
+| `malikhedi` | Malikhedi kund | Kund | `high` | No table in the supplied 2025 Durga section; analysis reports the gap when that period is selected. |
+| `shahpura` | Shahpura lake ghat | Shahpura Lake | `high` | Tables present for all six year/festival periods. |
 
 ---
 
@@ -79,16 +79,16 @@ Per `docs/CONTRACTS.md`, exactly seven site IDs are mapped deterministically. Ev
   - Raw markers `not sampled`, `*`, `**`, `_`, `-` are mapped to `value: null`, `status: 'not_sampled'`.
   - Original raw flags are preserved in `rawFlag` and `valueAsPrinted`.
 - **Corrupt / Unknown values (`status: 'unknown'`):**
-  - Any non-empty string that cannot be parsed as a number and does not match a recognized flag produces `value: null`, `status: 'unknown'`, and emits an explicit parsing warning without dropping the row.
+  - Any non-empty string that cannot be parsed as a number, an unrecognised flag, or an empty value with no flag produces `value: null`, `status: 'unknown'`, and an explicit warning without dropping the row.
 
 ### 4.3 Zero Dissolved Oxygen (DO = 0.0) Readings
 
 Across all 1,524 readings in the primary dataset, exactly **four** readings report a measured numeric Dissolved Oxygen of `0.0 mg/l`. All four events occurred at **Bairagarh (Sant Hirdaram) kund**:
 
-1. **Row `bpl-000030`**: 2023, Ganesh, `after` phase, value `0.0 mg/l`, PDF page `26` (`Idol_immer._Report_23_CPCB.pdf`)
-2. **Row `bpl-000498`**: 2023, Durga, `pre` phase, value `0.0 mg/l`, PDF page `60` (`Idol_immer._Report_23_CPCB.pdf`)
-3. **Row `bpl-000511`**: 2023, Durga, `during` phase, value `0.0 mg/l`, PDF page `60` (`Idol_immer._Report_23_CPCB.pdf`)
-4. **Row `bpl-001096`**: 2025, Ganesh, `during` phase, value `0.0 mg/l`, PDF page `28` (`Ganesh_and_Durga_visarjan_report-2025.pdf`)
+1. **Row `bpl-000054`**: 2023, Ganesh, `after` phase, value `0.0 mg/l`, PDF page `26` (`Idol_immer._Report_23_CPCB.pdf`)
+2. **Row `bpl-000391`**: 2023, Durga, `pre` phase, value `0.0 mg/l`, PDF page `60` (`Idol_immer._Report_23_CPCB.pdf`)
+3. **Row `bpl-000392`**: 2023, Durga, `during` phase, value `0.0 mg/l`, PDF page `60` (`Idol_immer._Report_23_CPCB.pdf`)
+4. **Row `bpl-001124`**: 2025, Ganesh, `during` phase, value `0.0 mg/l`, PDF page `28` (`Ganesh_and_Durga_visarjan_report-2025.pdf`)
 
 ---
 
@@ -106,7 +106,7 @@ CPCB Water Quality Criteria for **Class B (Outdoor Bathing - Organised)** are lo
      - `pH`: `type: 'range'`, `min: 6.5`, `max: 8.5`, `unit: ''`
 3. **Coliform Criterion Visibility & Limitation:**
    - The `Total coliform` criterion (500 MPN/100 ml) is retained in `TrackData.criteria`.
-   - However, **none of the MPPCB immersion reports tested for Total Coliform or Fecal Coliform**.
+   - However, **the supplied immersion readings contain no total or faecal coliform values**.
    - As mandated by the contract, meeting Class B DO/BOD/pH benchmarks does **not** constitute proof of Class B bathing water safety due to absent microbiological data.
 
 ---
@@ -130,16 +130,16 @@ Readings link to bundled local reports in `public/assets/track-2/resources/` via
 ## 7. Known Data Caveats & Structural Limitations
 
 1. **Assumed Units:** Original MPPCB tables print values without units. Standard units (`mg/l`, `µS/cm`, `NTU`) are assigned per the problem statement data dictionary; every reading is flagged with `unitsAssumed: true`.
-2. **Missing Durga 2025 Tables:** Neither Bairagarh kund nor Malikhedi kund has an idol immersion water quality table in the 2025 report. These missing tables are structural gaps in the official publication.
-3. **Site Mapping Ambiguity (`kamla-park`):** In 2023-2025 reports, Ganesh immersion tables describe the site as "Kamla Park kund", while Durga immersion tables describe it as "Lower Lake ghat". They may represent two separate immersion spots along the same waterfront.
+2. **Missing Durga 2025 Tables:** The supplied 2025 Durga Bhopal section has no table for Bairagarh kund or Malikhedi kund. This is absence in the supplied report, not proof that no sampling happened; the app shows these periods as absent evidence, never clean.
+3. **Site Mapping Ambiguity (`kamla-park`):** In 2023-2025 reports, Ganesh tables print "Rani Kamlapati, Kamla Park, Murti Visarjan Kund", while Durga tables print "Rani Kamlapati Visarjan Ghat (Lower Lake)". They may represent two separate immersion spots along the same waterfront.
 4. **Historical vs. Current Conditions:** All data represents 2023–2025 monitoring and does not reflect current water conditions in 2026.
-5. **No Full Class B Assessment:** Immersion reports omit microbiological tests (Total and Fecal Coliform); comparison against Class B is strictly limited to physicochemical parameters (DO, BOD, pH).
+5. **No Full Class B Assessment:** The supplied readings contain no microbiological values (total or faecal coliform); comparison against Class B is strictly limited to physicochemical parameters (DO, BOD, pH).
 
 ---
 
 ## 8. Verification and Test Suite
 
-The test suite in `src/data/loadTrackData.test.ts` executes 15 distinct unit and integration checks verifying:
+The test suite in `src/data/loadTrackData.test.ts` runs unit and integration checks verifying:
 - Complete ingestion of 1,524 rows with all 7 sites
 - Year row counts: 453 (2025), 546 (2024), 525 (2023)
 - DO counts: 116 numeric, 42 below 5, exactly 4 zeros
@@ -148,7 +148,7 @@ The test suite in `src/data/loadTrackData.test.ts` executes 15 distinct unit and
 - Censored BDL and ND normalization to null
 - Missing flags (`*`, `**`, `not sampled`, `_`, `-`) normalization to null
 - Preservation of numeric zero as 0
-- Robust handling of corrupt numeric inputs and unknown sites with explicit warnings
+- Corrupt numeric inputs, empty unflagged values, unknown sites and years without a bundled report produce explicit warnings
 
 ### Running the Checks
 

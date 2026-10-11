@@ -208,6 +208,29 @@ describe('normalizeReadingValue - flag and numeric boundary rules', () => {
     expect(warnings.length).toBeGreaterThan(0);
     expect(warnings[0]).toContain('weird_flag');
   });
+
+  it('treats an empty value with no flag as unknown with a warning, not as not sampled', () => {
+    const warnings: string[] = [];
+    const result = normalizeReadingValue('', '', '', 'test-7', 'DO', warnings);
+    expect(result.status).toBe('unknown');
+    expect(warnings).toHaveLength(1);
+  });
+
+  it('keeps site warnings scope-independent; absent Durga 2025 tables come from analysis', () => {
+    for (const site of BHOPAL_SITES) {
+      expect(site.warnings.some((warning) => /Durga 2025/.test(warning))).toBe(false);
+    }
+  });
+});
+
+describe('parseBhopalReadings - report references', () => {
+  it('never invents a report file for a year without a bundled report', () => {
+    const csv = `year,festival,site,water_body,phase,parameter,value,unit_assumed,flag,value_as_printed,parameter_as_printed,site_as_printed,site_match_confidence,source_page
+2022,Ganesh,Khatlapura ghat,Lower Lake,pre,pH,7.1,,,7.1,pH,Khatlapura,high,10`;
+    const { readings, warnings } = parseBhopalReadings(csv);
+    expect(readings[0].source.pdfUrl).toBe('');
+    expect(warnings.some((warning) => warning.includes('no bundled report'))).toBe(true);
+  });
 });
 
 describe('parseTrackData - CSV parsing with quotes and edge cases', () => {

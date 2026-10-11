@@ -10,7 +10,8 @@ import { ASSET_BASE, reportUrl, SOURCE_DOCUMENTS } from './shared/sources';
 import type { Filters, TrackData } from './shared/types';
 
 type View = 'workspace' | 'brief' | 'sources';
-const dataMode = import.meta.env.VITE_DATA_MODE ?? 'fixture';
+// Release default is the original data. The synthetic fixture is opt-in for UI work only.
+const dataMode = import.meta.env.VITE_DATA_MODE || 'real';
 const isFixture = dataMode === 'fixture';
 const navigation = [
   { id: 'workspace', label: 'Ghat priorities', icon: ClipboardList },
@@ -21,7 +22,7 @@ const navigation = [
 export function App() {
   const [view, setView] = useState<View>('workspace');
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const [selectedSiteId, setSelectedSiteId] = useState<string | null>('bairagarh');
+  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
   const [data, setData] = useState<TrackData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
