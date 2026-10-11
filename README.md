@@ -57,7 +57,7 @@ Hosting: `npm run build` produces a static `dist/` including the PDFs. For a sub
 | Samraddha Niranjan | IIIT Bhopal |
 | Shivendra Tiwari | IIIT Bhopal |
 | Shaurya Kumar | LNCT |
-| Prashant Patel | LNCT |
+| Prashant Patel | OCT |
 | Shanu Kushwaha | LNCT |
 
 Work was split into five areas: bootstrap, shared contracts, integration and
