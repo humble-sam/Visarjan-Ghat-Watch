@@ -1,106 +1,133 @@
-import { AlertTriangle, ChevronRight, SlidersHorizontal } from 'lucide-react';
-import { formatScope, PHASE_LABELS } from '../../shared/defaults';
-import { SourceLink } from '../../shared/SourceLink';
-import type { DashboardProps, Festival, Phase, SiteAnalysis } from '../../shared/types';
+import { AlertTriangle, ChevronRight, FlaskConical, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { DEFAULT_FILTERS, formatScope, PHASE_LABELS } from '../../shared/defaults';
+import type { DashboardProps, Filters, SiteAnalysis } from '../../shared/types';
+import { GhatDetail } from './GhatDetail';
+import {
+  AVAILABLE_YEARS, FESTIVALS, hasScope, isIncomplete, PHASES, statusLabel, toggleValue,
+} from './model';
 import './dashboard.css';
 
-// Member 4 owns this baseline component after bootstrap.
+// Member 4. Renders the shared Analysis only: no fetching, ranking or re-evaluation.
 export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, onSelectSite }: DashboardProps) {
+  const scoped = hasScope(filters);
   const selected = analysis.sites.find((item) => item.site.id === selectedSiteId) ?? analysis.sites[0];
-  const assessable = analysis.sites.filter((item) => item.rank !== null).length;
-  const incomplete = analysis.sites.filter((item) => item.coverage.numericBenchmarkSlots < item.coverage.expectedBenchmarkSlots).length;
-  const hasScope = filters.years.length > 0 && filters.festivals.length > 0 && filters.phases.length > 0;
-
-  function toggleFestival(festival: Festival) {
-    onFiltersChange({ ...filters, festivals: filters.festivals.includes(festival)
-      ? filters.festivals.filter((value) => value !== festival) : [...filters.festivals, festival] });
-  }
-  function togglePhase(phase: Phase) {
-    onFiltersChange({ ...filters, phases: filters.phases.includes(phase)
-      ? filters.phases.filter((value) => value !== phase) : [...filters.phases, phase] });
-  }
+  const ranked = analysis.sites.filter((item) => item.rank !== null);
+  const testingNeeded = analysis.sites.filter((item) => item.rank === null);
+  const incompleteRanked = ranked.filter(isIncomplete);
+  const isDefault = JSON.stringify(filters) === JSON.stringify(DEFAULT_FILTERS);
 
   return (
     <section className="dashboard">
       <div className="section-heading">
         <div><p className="eyebrow">Officer workspace</p><h2>Ghat priorities</h2></div>
-        <span className="small-label">Class B comparison</span>
+        <span className="small-label">Observed concern · Class B comparison</span>
       </div>
-      <div className="filter-bar">
-        <SlidersHorizontal size={17} className="filter-icon" aria-hidden="true" />
-        <label className="year-filter">Year
-          <select aria-label="Year" value={filters.years.length === 3 ? 'all' : filters.years[0] ?? ''}
-            onChange={(event) => onFiltersChange({ ...filters, years: event.target.value === 'all' ? [2023, 2024, 2025] : event.target.value ? [Number(event.target.value)] : [] })}>
-            <option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option>
-            <option value="all">2023–2025</option><option value="">None</option>
-          </select>
-        </label>
-        <fieldset><legend>Festival</legend>{(['Ganesh', 'Durga'] as const).map((festival) => (
-          <label key={festival}><input type="checkbox" checked={filters.festivals.includes(festival)} onChange={() => toggleFestival(festival)} />{festival}</label>
-        ))}</fieldset>
-        <fieldset><legend>Phase</legend>{(['pre', 'during', 'after'] as const).map((phase) => (
-          <label key={phase}><input type="checkbox" checked={filters.phases.includes(phase)} onChange={() => togglePhase(phase)} />{PHASE_LABELS[phase]}</label>
-        ))}</fieldset>
-      </div>
-      <p className="scope-label" aria-live="polite">{formatScope(filters)}</p>
+
+      <FilterBar filters={filters} onChange={onFiltersChange} isDefault={isDefault} />
+      <p className="scope-label" aria-live="polite"><strong>Scope</strong> {formatScope(filters)}
+        <span> · historical readings, not current 2026 conditions</span></p>
 
       <div className="summary-band">
-        <div><span>Ghats in scope</span><strong>{analysis.sites.length}<small>Bhopal</small></strong></div>
-        <div><span>With numeric evidence</span><strong>{assessable}<small>of {analysis.sites.length} ghats</small></strong></div>
-        <div><span>Incomplete coverage</span><strong>{incomplete}<small>fresh testing needed</small></strong></div>
+        <div><span>Ghats listed</span><strong>{analysis.sites.length}<small>all Bhopal ghats</small></strong></div>
+        <div><span>Ranked on numeric evidence</span><strong>{ranked.length}<small>of {analysis.sites.length} ghats</small></strong></div>
+        <div><span>Testing needed</span><strong>{scoped ? testingNeeded.length + incompleteRanked.length : '—'}<small>incomplete or no evidence</small></strong></div>
       </div>
 
-      {!hasScope && <div className="scope-empty" role="status">No period selected. Priorities are unavailable.</div>}
-      <div className="dashboard-grid">
-        <section className="priority-section" aria-label="Ghat priority list">
-          <div className="subsection-heading"><h3>Observed concern</h3><span>{analysis.sites.length} ghats</span></div>
-          <div className="table-scroll" tabIndex={0} role="region" aria-label="Ghat priorities table">
-            <table className="priority-table"><thead><tr><th scope="col">Rank</th><th scope="col">Ghat</th><th scope="col">Breaches</th><th scope="col">Evidence</th></tr></thead>
-              <tbody>{analysis.sites.map((item) => <tr key={item.site.id} className={selected?.site.id === item.site.id ? 'selected-row' : undefined}>
-                <td><span className="rank-number">{item.rank ?? '—'}</span></td>
-                <td><button className="site-button" type="button" onClick={() => onSelectSite(item.site.id)}
-                  aria-pressed={selected?.site.id === item.site.id}>
-                  <span><strong>{item.site.name}</strong><small>{item.site.waterBody}</small><span className={`status-label ${item.zeroDo ? 'critical' : item.rank === null ? 'unknown' : ''}`}>{hasScope ? statusLabel(item) : 'No selected data'}</span></span>
-                  <ChevronRight size={16} aria-hidden="true" />
-                </button></td>
-                <td className="numeric-cell">{item.benchmarkNumericCount ? `${item.benchmarkBreachCount}/${item.benchmarkNumericCount}` : 'Unknown'}</td>
-                <td className="numeric-cell">{item.coverage.numericBenchmarkSlots}/{item.coverage.expectedBenchmarkSlots}<small>numeric slots</small></td>
-              </tr>)}</tbody>
-            </table>
+      {!scoped && <div className="scope-empty" role="status"><AlertTriangle size={16} aria-hidden="true" />
+        No period selected. Choose at least one year, festival and phase; priorities are unavailable.</div>}
+
+      {scoped && (testingNeeded.length > 0 || incompleteRanked.length > 0) && (
+        <section className="testing-needed" aria-label="Testing needed summary">
+          <FlaskConical size={18} aria-hidden="true" />
+          <div>
+            <h3>Testing needed before 20 October 2026</h3>
+            {testingNeeded.length > 0 && <p><strong>Insufficient evidence, no rank:</strong>{' '}
+              {testingNeeded.map((item, index) => <span key={item.site.id}>{index > 0 && ', '}
+                <button type="button" className="inline-link" onClick={() => onSelectSite(item.site.id)}>{item.site.name}</button>
+              </span>)}</p>}
+            {incompleteRanked.length > 0 && <p><strong>Ranked with gaps:</strong>{' '}
+              {incompleteRanked.map((item) => `${item.site.name} (${item.coverage.numericBenchmarkSlots}/${item.coverage.expectedBenchmarkSlots} numeric)`).join(', ')}</p>}
           </div>
         </section>
-        {selected && <aside className="ghat-detail" aria-label="Selected ghat details">
-          <p className="eyebrow">Selected ghat</p><h3>{selected.site.name}</h3>
-          <p className="detail-waterbody">{selected.site.waterBody}</p>
-          <div className="metric-list">{selected.metrics.map((metric) => <div key={metric.parameter}>
-            <span>{metric.parameter}{metric.parameter === 'Dissolved oxygen' ? ' · minimum' : metric.parameter === 'BOD' ? ' · maximum' : ' · range'}</span>
-            <strong>{metric.numericCount === 0 ? 'Unknown' : metric.parameter === 'pH' ? `${metric.min}–${metric.max}` : metric.parameter === 'Dissolved oxygen' ? metric.min : metric.max}
-              {metric.numericCount > 0 && metric.parameter !== 'pH' && <small> mg/l</small>}</strong>
-          </div>)}</div>
-          <div className="detail-benchmark"><strong>Class B comparison</strong><span>DO ≥ 5 · BOD ≤ 3 mg/l · pH 6.5–8.5</span></div>
-          {selected.warnings.map((warning) => <p key={warning} className="detail-warning"><AlertTriangle size={15} aria-hidden="true" />{warning}</p>)}
-          <h4>Evidence states</h4>
-          <dl className="coverage-list"><div><dt>Numeric</dt><dd>{selected.coverage.numericBenchmarkSlots}</dd></div>
-            <div><dt>BDL / ND</dt><dd>{selected.coverage.censoredBenchmarkSlots}</dd></div>
-            <div><dt>Not sampled</dt><dd>{selected.coverage.explicitMissingBenchmarkSlots}</dd></div>
-            <div><dt>Absent</dt><dd>{selected.coverage.absentBenchmarkSlots}</dd></div>
-            <div><dt>Unknown</dt><dd>{selected.coverage.unknownBenchmarkSlots}</dd></div></dl>
-          <h4>Reading references</h4>
-          <div className="reading-list">{selected.metrics.flatMap((metric) => metric.readings).slice(0, 3).map((reading) => (
-            <div key={reading.id}><span>{reading.parameter}<small>{reading.festival} · {PHASE_LABELS[reading.phase]}</small></span>
-              <span><strong>{reading.valueAsPrinted}</strong><SourceLink source={reading.source} /></span>
-            </div>
-          ))}</div>
-          {!selected.benchmarkNumericCount && <p className="muted">Insufficient numeric evidence for a priority rank.</p>}
-        </aside>}
+      )}
+
+      <div className="dashboard-grid">
+        <section className="priority-section" aria-label="Ghat priority list">
+          <div className="subsection-heading"><h3>Observed concern ordering</h3><span>{analysis.sites.length} ghats</span></div>
+          <div className="table-scroll" tabIndex={0} role="region" aria-label="Ghat priorities table">
+            <table className="priority-table">
+              <caption className="visually-hidden">Ghats ordered by observed concern for {formatScope(filters)}. Unranked ghats follow and need testing.</caption>
+              <thead><tr><th scope="col">Rank</th><th scope="col">Ghat</th><th scope="col">Breaches</th><th scope="col">Coverage</th></tr></thead>
+              <tbody>{analysis.sites.map((item) => (
+                <PriorityRow key={item.site.id} item={item} scoped={scoped}
+                  selected={selected?.site.id === item.site.id} onSelect={onSelectSite} />
+              ))}</tbody>
+            </table>
+          </div>
+          <p className="table-note">Order: any DO = 0 first, then share of numeric DO/BOD/pH readings breaching Class B,
+            then lowest DO, highest BOD. A team heuristic over unequal samples, not an official CPCB ranking.</p>
+        </section>
+        {selected && <GhatDetail site={selected} readings={analysis.readings} filters={filters} />}
       </div>
-      <div className="limitations-band"><AlertTriangle size={17} aria-hidden="true" /><p>Historical evidence only. Units are assumed. Total coliform was not measured; full Class B compliance cannot be assessed. Missing data does not mean clean water.</p></div>
+
+      <div className="limitations-band"><AlertTriangle size={17} aria-hidden="true" />
+        <div>
+          <p>Historical evidence (2023–2025 reports) only; not a forecast, safety finding or immersion permission. Units are assumed.
+            Total coliform was not measured, so full Class B compliance cannot be assessed. Missing data does not mean clean water.</p>
+          {analysis.warnings.length > 0 && <details>
+            <summary>Analysis notes ({analysis.warnings.length})</summary>
+            <ul>{analysis.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
+          </details>}
+        </div>
+      </div>
     </section>
   );
 }
 
-function statusLabel(item: SiteAnalysis): string {
-  if (item.rank === null) return 'Testing needed';
-  if (item.zeroDo) return 'Zero DO observed';
-  return item.benchmarkBreachCount > 0 ? 'Breaches observed' : 'No observed breach';
+function FilterBar({ filters, onChange, isDefault }: { filters: Filters; onChange: (filters: Filters) => void; isDefault: boolean }) {
+  return (
+    <div className="filter-bar">
+      <SlidersHorizontal size={17} className="filter-icon" aria-hidden="true" />
+      <fieldset><legend>Year</legend>{AVAILABLE_YEARS.map((year) => (
+        <label key={year}><input type="checkbox" checked={filters.years.includes(year)}
+          onChange={() => onChange({ ...filters, years: toggleValue(filters.years, year, AVAILABLE_YEARS) })} />{year}</label>
+      ))}</fieldset>
+      <fieldset><legend>Festival</legend>{FESTIVALS.map((festival) => (
+        <label key={festival}><input type="checkbox" checked={filters.festivals.includes(festival)}
+          onChange={() => onChange({ ...filters, festivals: toggleValue(filters.festivals, festival, FESTIVALS) })} />{festival}</label>
+      ))}</fieldset>
+      <fieldset><legend>Phase</legend>{PHASES.map((phase) => (
+        <label key={phase}><input type="checkbox" checked={filters.phases.includes(phase)}
+          onChange={() => onChange({ ...filters, phases: toggleValue(filters.phases, phase, PHASES) })} />{PHASE_LABELS[phase]}</label>
+      ))}</fieldset>
+      <button type="button" className="command-button reset-button" disabled={isDefault} onClick={() => onChange(DEFAULT_FILTERS)}>
+        <RotateCcw size={14} aria-hidden="true" />Reset
+      </button>
+    </div>
+  );
+}
+
+function PriorityRow({ item, scoped, selected, onSelect }: {
+  item: SiteAnalysis; scoped: boolean; selected: boolean; onSelect: (siteId: string) => void;
+}) {
+  const status = statusLabel(item, scoped);
+  const { coverage } = item;
+  const rowClass = [selected && 'selected-row', item.rank === null && 'unranked-row'].filter(Boolean).join(' ');
+  return (
+    <tr className={rowClass || undefined}>
+      <td><span className="rank-number">{item.rank ?? '—'}</span></td>
+      <td><button className="site-button" type="button" onClick={() => onSelect(item.site.id)} aria-pressed={selected}>
+        <span><strong>{item.site.name}</strong><small>{item.site.waterBody}</small>
+          <span className={`status-label ${status.tone}`}>{status.text}</span>
+          {item.site.confidence === 'medium' && <span className="status-label unknown">Site identity to verify</span>}
+        </span>
+        <ChevronRight size={16} aria-hidden="true" />
+      </button></td>
+      <td className="numeric-cell">{item.benchmarkNumericCount
+        ? <>{item.benchmarkBreachCount}/{item.benchmarkNumericCount}<small>{Math.round((item.breachFraction ?? 0) * 100)}% of numeric</small></>
+        : <>Unknown<small>no numeric</small></>}</td>
+      <td className="numeric-cell">{coverage.numericBenchmarkSlots}/{coverage.expectedBenchmarkSlots}
+        <small>numeric slots</small></td>
+    </tr>
+  );
 }
