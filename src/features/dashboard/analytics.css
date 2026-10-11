@@ -1,0 +1,79 @@
+/* ---- Ghat gallery ---- */
+.ghat-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin: 4px 0 26px; }
+.ghat-card { display: flex; flex-direction: column; padding: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: white;
+  text-align: left; cursor: pointer; font: inherit; color: inherit; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.ghat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(23, 58, 92, .14); }
+.ghat-card.selected { border-color: var(--saffron); box-shadow: 0 0 0 2px var(--saffron); }
+.ghat-card-art { position: relative; display: block; height: 104px; }
+.ghat-card-art svg { width: 100%; height: 100%; display: block; }
+.rank-badge { position: absolute; top: 8px; left: 8px; font-size: 15px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(23, 58, 92, .9); color: white; }
+.rank-badge.critical { background: var(--red); }
+.rank-badge.unranked { background: #8a6418; }
+.ghat-card-body { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px 14px; }
+.ghat-card-body strong { font-size: 16px; line-height: 1.3; }
+.ghat-card-body small { font-size: 14px; color: var(--muted); }
+.ghat-card-body .status-label { margin-top: 4px; font-size: 14px; font-weight: 600; }
+.breach-meter { display: block; height: 8px; border-radius: 99px; background: #edf1f1; margin-top: 8px; overflow: hidden; }
+.breach-meter i { display: block; height: 100%; border-radius: 99px; background: #d03b3b; }
+.breach-meter i.empty { width: 100% !important; background: repeating-linear-gradient(45deg, #edf1f1 0 4px, #aeb6b6 4px 7px); }
+.breach-meter-label { font-size: 14px; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+/* ---- Analytics ---- */
+.analytics { margin: 30px 0 10px; padding: 26px; border-radius: 18px; background: linear-gradient(180deg, #f3f8fa, #ffffff); border: 1px solid var(--line); }
+.analytics .subsection-heading { flex-wrap: wrap; gap: 6px 16px; }
+.analytics .subsection-heading h3 { font-size: 21px; color: var(--lake); }
+.stat-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+.stat-tile { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: 14px; background: white; border: 1px solid var(--line); border-top: 4px solid var(--lake-2); }
+.stat-tile svg { position: absolute; right: 14px; top: 14px; width: 22px; height: 22px; color: var(--lake-2); }
+.stat-tile.critical { border-top-color: var(--red); }
+.stat-tile.critical svg { color: var(--red); }
+.stat-tile.warning { border-top-color: #eda100; }
+.stat-tile.warning svg { color: #a26c00; }
+.stat-tile.neutral { border-top-color: #aeb6b6; }
+.stat-tile.neutral svg { color: var(--muted); }
+.stat-tile span { font-size: 15px; color: var(--muted); padding-right: 28px; }
+.stat-tile strong { font-size: 30px; font-weight: 700; line-height: 1.2; }
+.stat-tile small { font-size: 14px; color: var(--muted); line-height: 1.4; }
+.chart-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.chart-card { margin: 0; padding: 18px 18px 14px; background: white; border: 1px solid var(--line); border-radius: 14px; min-width: 0; }
+.chart-card.wide { grid-column: 1 / -1; }
+.chart-card > figcaption { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.chart-card > figcaption strong { display: block; font-size: 18px; }
+.chart-card > figcaption small { display: block; font-size: 14px; color: var(--muted); margin-top: 3px; line-height: 1.45; }
+.chart-icon { display: inline-flex; padding: 8px; border-radius: 10px; background: #fff1e2; color: var(--saffron); flex-shrink: 0; }
+.chart-note { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+.chart-table { margin-top: 10px; font-size: 14px; }
+.chart-table summary { cursor: pointer; color: var(--teal); font-size: 14px; }
+.chart-table .evidence-table { margin-top: 8px; font-size: 14px; }
+.chart-tooltip { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: white; border: 1px solid #ccd5d5; border-radius: 8px; font-size: 14px; box-shadow: 0 6px 18px rgba(0, 0, 0, .08); }
+.chart-card .chart-legend { font-size: 14px; gap: 8px 18px; margin-top: 10px; }
+.heatmap { display: flex; flex-direction: column; gap: 4px; }
+.heat-row { display: grid; grid-template-columns: minmax(110px, 1.3fr) repeat(3, minmax(0, 1fr)); gap: 4px; }
+.heat-head span { font-size: 14px; font-weight: 600; color: var(--muted); text-align: center; padding: 4px 0; }
+.heat-head span:first-child { text-align: left; }
+.heat-site { border: 0; background: none; text-align: left; font: inherit; font-size: 15px; color: var(--ink); cursor: pointer; padding: 0 4px; }
+.heat-site:hover { color: var(--teal); text-decoration: underline; }
+.heat-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 46px; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .08); color: var(--ink); }
+.heat-cell strong { font-size: 15px; }
+.heat-cell small { font-size: 13px; opacity: .85; }
+.heat-cell.dark { color: white; }
+.heat-cell.empty { background: repeating-linear-gradient(45deg, #f2f4f4 0 5px, #dfe3e3 5px 9px); color: var(--muted); }
+.heat-legend { display: flex; align-items: center; gap: 3px; margin-top: 10px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+.heat-legend i { width: 22px; height: 12px; border-radius: 3px; display: inline-block; }
+.heat-legend i.empty { margin-left: 14px; background: repeating-linear-gradient(45deg, #f2f4f4 0 3px, #c9cfcf 3px 5px); }
+.heat-legend span { margin: 0 4px; }
+@media (max-width: 950px) {
+  .stat-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chart-grid-2 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .analytics { padding: 14px; }
+  .ghat-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ghat-card-art { height: 80px; }
+  .stat-tile strong { font-size: 24px; }
+  .heat-row { grid-template-columns: minmax(84px, 1.1fr) repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1200px) {
+  .ghat-gallery { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
+  .ghat-card-body { padding: 10px 12px 12px; }
+}

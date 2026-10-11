@@ -30,7 +30,7 @@ export function GhatDetail({ site, readings, filters }: GhatDetailProps) {
   const coverage = site.coverage;
 
   return (
-    <aside className="ghat-detail" aria-label="Selected ghat details">
+    <aside id="ghat-detail" className="ghat-detail" aria-label="Selected ghat details">
       <p className="eyebrow">Selected ghat{site.rank !== null ? ` · Rank ${site.rank}` : ''}</p>
       <h3>{site.site.name}</h3>
       <p className="detail-waterbody">{site.site.waterBody}

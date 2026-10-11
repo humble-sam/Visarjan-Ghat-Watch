@@ -1,4 +1,5 @@
 import { reportUrl, SOURCE_DOCUMENTS } from '../../shared/sources';
+import { isUploadedReportUrl } from '../../shared/SourceLink';
 import type { Analysis, Brief, Criterion, EvaluatedReading, Filters, Language, Reason, SiteAnalysis } from '../../shared/types';
 
 export interface BriefSection { title: string; lines: string[] }
@@ -38,7 +39,7 @@ const copy = {
     ],
     limits: 'Limits of this brief',
     limitLines: [
-      '2023-2025 readings describe historical conditions, not current 2026 water quality or a forecast. Units are assumed by the source pack.',
+      'Report readings describe historical conditions, not current 2026 water quality or a forecast. Units are assumed by the source pack.',
       'Class B is a comparison benchmark. Total coliform is absent, so full Class B compliance cannot be assessed.',
       'Missing is unknown. BDL/ND are not zero and are not counted as passing. No Class B limits are supplied for COD, solids, turbidity or the measured metals.',
       'This brief does not grant immersion permission or establish current safety or health effects.',
@@ -64,7 +65,7 @@ const copy = {
     ],
     limits: 'इस कार्य-सार की सीमाएँ',
     limitLines: [
-      '2023-2025 के माप ऐतिहासिक स्थिति दर्शाते हैं, 2026 की वर्तमान जल गुणवत्ता या पूर्वानुमान नहीं। स्रोत में इकाइयाँ मानकर दी गई हैं।',
+      'रिपोर्ट के माप ऐतिहासिक स्थिति दर्शाते हैं, 2026 की वर्तमान जल गुणवत्ता या पूर्वानुमान नहीं। स्रोत में इकाइयाँ मानकर दी गई हैं।',
       'वर्ग B केवल तुलना का मानदंड है। कुल कोलीफॉर्म के माप उपलब्ध नहीं हैं; पूर्ण वर्ग B अनुपालन तय नहीं किया जा सकता।',
       'गायब माप अज्ञात हैं। BDL/ND को शून्य या मानदंड पर खरा नहीं माना गया है। COD, ठोस पदार्थ, मटमैलापन और मापी गई धातुओं के लिए वर्ग B की सीमाएँ नहीं दी गई हैं।',
       'यह कार्य-सार विसर्जन की अनुमति, वर्तमान सुरक्षा या स्वास्थ्य प्रभाव का प्रमाण नहीं है।',
@@ -88,10 +89,17 @@ function isSynthetic(analysis: Analysis): boolean {
     || analysis.readings.some((row) => row.id.startsWith('fixture-') || row.source.documentId === 'synthetic-fixture');
 }
 
-function knownReport(row: EvaluatedReading) {
-  return SOURCE_DOCUMENTS.find((report) => report.id === `immersion-${row.year}`
+function knownReport(row: EvaluatedReading): { file: string } | undefined {
+  const bundled = SOURCE_DOCUMENTS.find((report) => report.id === `immersion-${row.year}`
     && row.source.pdfUrl === reportUrl(report.file)
     && Number.isInteger(row.source.page) && row.source.page > 0 && row.source.page <= reportPages[row.year]);
+  if (bundled) return bundled;
+  // Officer-uploaded report with an attached PDF on this device.
+  if (row.source.documentId.startsWith('upload-') && isUploadedReportUrl(row.source.pdfUrl)
+    && Number.isInteger(row.source.page) && row.source.page > 0) {
+    return { file: `uploaded report ${row.source.documentId}` };
+  }
+  return undefined;
 }
 
 function usableCriterion(criterion: Criterion | null): criterion is Criterion {

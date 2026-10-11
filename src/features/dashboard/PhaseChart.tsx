@@ -30,13 +30,13 @@ export function PhaseChart({ chart, criterion, unit }: PhaseChartProps) {
           <ResponsiveContainer width="100%" height={190}>
             <LineChart data={chart.rows} margin={{ top: 10, right: 16, bottom: 0, left: -12 }}>
               <CartesianGrid stroke="#e2e7e7" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6d7779' }} tickLine={false} axisLine={{ stroke: '#ccd5d5' }} />
-              <YAxis tick={{ fontSize: 11, fill: '#6d7779' }} tickLine={false} axisLine={false} width={44}
+              <XAxis dataKey="label" tick={{ fontSize: 13, fill: '#6d7779' }} tickLine={false} axisLine={{ stroke: '#ccd5d5' }} />
+              <YAxis tick={{ fontSize: 13, fill: '#6d7779' }} tickLine={false} axisLine={false} width={44}
                 domain={[0, 'auto']} allowDecimals />
               {limit !== null && <ReferenceLine y={limit} stroke="#6d7779" strokeDasharray="2 3"
-                label={{ value: `Class B ${formatNumber(limit)}`, position: 'insideTopRight', fontSize: 10, fill: '#6d7779' }} />}
+                label={{ value: `Class B ${formatNumber(limit)}`, position: 'insideTopRight', fontSize: 14, fill: '#6d7779' }} />}
               <Tooltip formatter={(value, series) => [value === null || value === undefined ? 'No numeric reading' : `${value}${unit ? ` ${unit}` : ''}`, series]}
-                contentStyle={{ fontSize: 12, borderColor: '#ccd5d5' }} />
+                contentStyle={{ fontSize: 14, borderColor: '#ccd5d5' }} />
               {chart.series.map((series) => (
                 <Line key={series.key} dataKey={series.key} name={series.label} type="linear" connectNulls={false}
                   stroke={seriesColor(series.key)} strokeWidth={2}

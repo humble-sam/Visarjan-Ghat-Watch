@@ -141,6 +141,7 @@ const SERIES_COLORS: Record<string, string> = {
   'Ganesh 2023': '#2a78d6', 'Durga 2023': '#eb6834',
   'Ganesh 2024': '#1baf7a', 'Durga 2024': '#eda100',
   'Ganesh 2025': '#e87ba4', 'Durga 2025': '#008300',
+  'Ganesh 2026': '#6250d6', 'Durga 2026': '#e34948',
 };
 export function seriesColor(periodKey: string): string {
   return SERIES_COLORS[periodKey] ?? '#6d7779';

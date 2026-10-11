@@ -114,6 +114,8 @@ export interface DashboardProps {
   selectedSiteId: string | null;
   onFiltersChange: (filters: Filters) => void;
   onSelectSite: (siteId: string) => void;
+  /** Years present in the loaded data (bundled plus uploaded). Defaults to 2023-2025. */
+  availableYears?: number[];
 }
 export interface BriefPanelProps {
   analysis: Analysis;
