@@ -1,20 +1,27 @@
 import { AlertTriangle, ChevronRight, FlaskConical, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { DEFAULT_FILTERS, formatScope, PHASE_LABELS } from '../../shared/defaults';
 import type { DashboardProps, Filters, SiteAnalysis } from '../../shared/types';
+import { AnalyticsPanel } from './AnalyticsPanel';
 import { GhatDetail } from './GhatDetail';
+import { GhatGallery } from './GhatGallery';
 import {
   AVAILABLE_YEARS, FESTIVALS, hasScope, isIncomplete, PHASES, statusLabel, toggleValue,
 } from './model';
 import './dashboard.css';
 
 // Member 4. Renders the shared Analysis only: no fetching, ranking or re-evaluation.
-export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, onSelectSite }: DashboardProps) {
+export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, onSelectSite, availableYears = [...AVAILABLE_YEARS] }: DashboardProps) {
   const scoped = hasScope(filters);
   const selected = analysis.sites.find((item) => item.site.id === selectedSiteId) ?? analysis.sites[0];
   const ranked = analysis.sites.filter((item) => item.rank !== null);
   const testingNeeded = analysis.sites.filter((item) => item.rank === null);
   const incompleteRanked = ranked.filter(isIncomplete);
   const isDefault = JSON.stringify(filters) === JSON.stringify(DEFAULT_FILTERS);
+  // Gallery and chart clicks jump to the detail panel further down the page.
+  const openSite = (siteId: string) => {
+    onSelectSite(siteId);
+    requestAnimationFrame(() => document.getElementById('ghat-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
 
   return (
     <section className="dashboard">
@@ -23,9 +30,11 @@ export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, 
         <span className="small-label">Observed concern · Class B comparison</span>
       </div>
 
-      <FilterBar filters={filters} onChange={onFiltersChange} isDefault={isDefault} />
+      <FilterBar filters={filters} onChange={onFiltersChange} isDefault={isDefault} years={availableYears} />
       <p className="scope-label" aria-live="polite"><strong>Scope</strong> {formatScope(filters)}
         <span> · historical readings, not current 2026 conditions</span></p>
+
+      <GhatGallery sites={analysis.sites} scoped={scoped} selectedSiteId={selected?.site.id ?? null} onSelectSite={openSite} />
 
       <div className="summary-band">
         <div><span>Ghats listed</span><strong>{analysis.sites.length}<small>all Bhopal ghats</small></strong></div>
@@ -51,6 +60,8 @@ export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, 
         </section>
       )}
 
+      {scoped && <AnalyticsPanel analysis={analysis} onSelectSite={openSite} />}
+
       <div className="dashboard-grid">
         <section className="priority-section" aria-label="Ghat priority list">
           <div className="subsection-heading"><h3>Observed concern ordering</h3><span>{analysis.sites.length} ghats</span></div>
@@ -72,7 +83,7 @@ export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, 
 
       <div className="limitations-band"><AlertTriangle size={17} aria-hidden="true" />
         <div>
-          <p>Historical evidence (2023–2025 reports) only; not a forecast, safety finding or immersion permission. Units are assumed.
+          <p>Historical report evidence only; not a forecast, safety finding or immersion permission. Units are assumed.
             Total coliform was not measured, so full Class B compliance cannot be assessed. Missing data does not mean clean water.</p>
           {analysis.warnings.length > 0 && <details>
             <summary>Analysis notes ({analysis.warnings.length})</summary>
@@ -84,13 +95,13 @@ export function Dashboard({ analysis, filters, selectedSiteId, onFiltersChange, 
   );
 }
 
-function FilterBar({ filters, onChange, isDefault }: { filters: Filters; onChange: (filters: Filters) => void; isDefault: boolean }) {
+function FilterBar({ filters, onChange, isDefault, years }: { filters: Filters; onChange: (filters: Filters) => void; isDefault: boolean; years: number[] }) {
   return (
     <div className="filter-bar">
       <SlidersHorizontal size={17} className="filter-icon" aria-hidden="true" />
-      <fieldset><legend>Year</legend>{AVAILABLE_YEARS.map((year) => (
+      <fieldset><legend>Year</legend>{years.map((year) => (
         <label key={year}><input type="checkbox" checked={filters.years.includes(year)}
-          onChange={() => onChange({ ...filters, years: toggleValue(filters.years, year, AVAILABLE_YEARS) })} />{year}</label>
+          onChange={() => onChange({ ...filters, years: toggleValue(filters.years, year, years) })} />{year}</label>
       ))}</fieldset>
       <fieldset><legend>Festival</legend>{FESTIVALS.map((festival) => (
         <label key={festival}><input type="checkbox" checked={filters.festivals.includes(festival)}
