@@ -8,13 +8,12 @@ cleaning and aeration attention before Durga visarjan.
 **Outcome:** inspect seven ghats ranked by historical water-quality evidence,
 open the original report page, and export a short Hindi/English action brief.
 
-## Start Here
+## Project Documents
 
-1. Read [the four-hour project plan](docs/PROJECT_PLAN.md).
-2. Assign Members 1-5 and read [the integration contract](docs/CONTRACTS.md).
-3. Give each member their [AI build prompt](docs/AI_PROMPTS.md).
-4. Use the original files in [public/assets/track-2](public/assets/track-2).
-5. Follow the merge checkpoints and acceptance checklist in the plan.
+- [Four-hour build plan](docs/PROJECT_PLAN.md) and [integration contract](docs/CONTRACTS.md)
+- [Data validation](docs/DATA_VALIDATION.md) and [ranking methodology](docs/METHODOLOGY.md)
+- [Evidence QA checklist](docs/QA_CHECKLIST.md) and [demo script](docs/DEMO_SCRIPT.md)
+- Original files in [public/assets/track-2](public/assets/track-2); [asset provenance](docs/ASSET_SOURCES.md)
 
 ## Run Locally
 
@@ -30,17 +29,24 @@ Prerequisite: Node.js 22.12+ (Node 24 recommended).
 
 ## Current Status
 
-Working: app shell, shared TypeScript contracts, filter/selection state, a labelled
-seven-ghat synthetic fixture, starter dashboard/details, English/Hindi draft views,
-source library, original local assets, loading/error/retry states and CI checks.
+Working end to end on the original Track 2 data:
 
-Pending: real CSV ingestion (Member 2), production ranking (Member 3), full dashboard
-and charts (Member 4), reviewed bilingual briefs/export (Member 5), and hosting.
-Synthetic data is **not** MPPCB evidence; officer exports are disabled in this baseline.
+- Loads all 1,524 Bhopal readings and Class B criteria from the bundled CSVs
+  ([data validation](docs/DATA_VALIDATION.md)).
+- Orders the seven ghats by observed concern for the selected years, festivals and
+  phases; unassessable ghats stay listed as "testing needed"
+  ([methodology](docs/METHODOLOGY.md)).
+- Ghat detail with Class B comparisons, reasons linked to report pages, DO/BOD phase
+  charts, a reading-state table, matching year comparisons and coverage.
+- English/Hindi officer brief with UTF-8 text download, copy and print
+  ([evidence QA](docs/QA_CHECKLIST.md), [demo script](docs/DEMO_SCRIPT.md)).
 
-Read [the bootstrap handoff](docs/BOOTSTRAP_HANDOFF.md) before starting feature work.
-`VITE_DATA_MODE=real` activates the agreed data/analysis entry points once implemented.
-Until then real mode fails explicitly; it never substitutes synthetic readings.
+The app uses the original data by default. `VITE_DATA_MODE=fixture` switches to a
+clearly labelled synthetic preview for UI work; exports are disabled in that mode.
+A data load failure shows an error and retry; it never falls back to synthetic data.
+
+Hosting: `npm run build` produces a static `dist/` including the PDFs. For a subpath
+(e.g. GitHub Pages) build with `VITE_BASE_PATH=/Visarjan-Ghat-Watch/`.
 
 ## Team
 

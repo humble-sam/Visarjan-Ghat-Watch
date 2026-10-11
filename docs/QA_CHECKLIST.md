@@ -53,14 +53,14 @@ Upstream analysis notes are preserved in their supplied language, not silently t
 
 ## Integration And Submission Gates
 
-- [ ] Member 2 real-data loader and Member 3 analyzer replace the bootstrap stubs.
-- [ ] Recheck brief versus final dashboard rank order, coverage and active filters.
+- [x] Member 2 real-data loader and Member 3 analyzer replace the bootstrap stubs; the app defaults to real data.
+- [x] Brief and dashboard checked against the same real analysis for all 147 non-empty filter combinations: no export blocked, coverage sums hold. Default 2025 order matches in both (Bairagarh, Malikhedi, Rani Kamlapati / Kamla Park).
 - [ ] Open original report pages in the final deployment, including a mobile browser.
 - [ ] Fluent Hindi reviewer name/sign-off recorded by the team.
 - [ ] Final real-data demo recorded; six-minute pitch rehearsed with the team.
 - [ ] Final hosted revision, public repository and official submission confirmed by Member 1.
 
-The current main app is a synthetic fixture. The owned QA preview uses a small
+The owned QA preview uses a small
 source-checked subset with illustrative ranks and a prominent warning; it is not
 the final officer brief or evidence that the production ranking is complete.
 Local screenshots, text exports, QA PDFs and a short feature recording are under
