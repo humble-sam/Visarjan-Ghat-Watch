@@ -8,6 +8,8 @@ import { availableYears, mergeTrackData, parseUploadCsv, type StoredUpload } fro
 import { analyze } from './domain/analyze';
 import { Dashboard } from './features/dashboard/Dashboard';
 import { BriefPanel } from './features/brief/BriefPanel';
+import { AssistantPanel } from './features/assistant/AssistantPanel';
+import { buildAssistantContext } from './features/assistant/context';
 import { UploadPanel, type SavedUploadSummary } from './features/uploads/UploadPanel';
 import { DEFAULT_FILTERS } from './shared/defaults';
 import { createFixtureAnalysis, fixtureTrackData, FIXTURE_WARNING } from './shared/fixture';
@@ -163,6 +165,10 @@ export function App() {
         <span><Waves size={16} aria-hidden="true" />Visarjan Ghat Watch · Team Nova</span>
         <span>{firstYear}–{lastYear} reports · Public data · No live monitoring · Illustrations are artistic, not photographs</span>
       </footer>
+      {!isFixture && <AssistantPanel getContext={() => buildAssistantContext({
+        analysis: result.analysis, filters, selectedSiteId, view,
+        uploadedReports: uploads.map((upload) => upload.fileName),
+      })} />}
     </div>
   );
 }
