@@ -5,7 +5,7 @@
   "functions": {
     "api/chat.ts": {
       "maxDuration": 60,
-      "includeFiles": "{public/assets/track-2/data/bhopal_ghats_2023_2025.csv,public/assets/track-2/data/cpcb_water_quality_criteria.csv,public/assets/track-2/data/DATA_DICTIONARY.md,public/assets/track-2/PROBLEM-STATEMENT.md,docs/METHODOLOGY.md,docs/DATA_VALIDATION.md,docs/QA_CHECKLIST.md}"
+      "includeFiles": "{public/assets/track-2/data/**,public/assets/track-2/PROBLEM-STATEMENT.md,docs/*.md}"
     }
   }
 }
